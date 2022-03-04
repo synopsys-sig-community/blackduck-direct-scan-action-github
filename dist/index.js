@@ -5553,7 +5553,7 @@ const core_1 = __nccwpck_require__(186);
 const IS_WINDOWS = process.platform === "win32";
 const IS_LINUX = process.platform === "linux";
 const IS_MACOS = process.platform === "darwin";
-const TOOL_BINARY_REPO_URL = `https://github.com/synopsys-sig-community/blackduck-direct-scan-action/releases/tag`; // bd_direct_scan%2Dmacos
+const TOOL_BINARY_REPO_URL = `https://github.com/synopsys-sig-community/blackduck-direct-scan-action/releases/download/`;
 exports.TOOL_NAME = "bd_direct_scan";
 function findOrDownloadTool() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -5585,13 +5585,13 @@ function run_tool(tool_path, args) {
 exports.run_tool = run_tool;
 function createDetectDownloadUrl(repoUrl = TOOL_BINARY_REPO_URL) {
     if (IS_WINDOWS) {
-        return `${repoUrl}/${inputs_1.TOOL_VERSION}#:~:text=${exports.TOOL_NAME}%2Dwin32`;
+        return `${repoUrl}/${inputs_1.TOOL_VERSION}/{TOOL_NAME}-win32`;
     }
     else if (IS_LINUX) {
-        return `${repoUrl}/${inputs_1.TOOL_VERSION}#:~:text=${exports.TOOL_NAME}%2Dlinux`;
+        return `${repoUrl}/${inputs_1.TOOL_VERSION}/{TOOL_NAME}_linux`; // TODO Replace _ with -
     }
     else if (IS_MACOS) {
-        return `${repoUrl}/${inputs_1.TOOL_VERSION}#:~:text=${exports.TOOL_NAME}%2Ddarwin`;
+        return `${repoUrl}/${inputs_1.TOOL_VERSION}/{TOOL_NAME}_darwin`;
     }
     else {
         (0, core_1.error)(`Platform ${process.platform} not supported by this GitHub Action`);
