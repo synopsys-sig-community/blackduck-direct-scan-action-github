@@ -5557,10 +5557,7 @@ const TOOL_BINARY_REPO_URL = `https://github.com/synopsys-sig-community/blackduc
 exports.TOOL_NAME = "bd_direct_scan";
 function findOrDownloadTool() {
     return __awaiter(this, void 0, void 0, function* () {
-        let bin_name = exports.TOOL_NAME;
-        if (IS_WINDOWS) {
-            bin_name += ".exe";
-        }
+        let bin_name = get_tool_binary_name();
         (0, core_1.info)(`bin_name = ${bin_name}`);
         const cached_tool = (0, tool_cache_1.find)(bin_name, inputs_1.TOOL_VERSION);
         if (cached_tool) {
@@ -5583,6 +5580,21 @@ function run_tool(tool_path, args) {
     });
 }
 exports.run_tool = run_tool;
+function get_tool_binary_name() {
+    if (IS_WINDOWS) {
+        return `${exports.TOOL_NAME}-win32.exe`;
+    }
+    else if (IS_LINUX) {
+        return `${exports.TOOL_NAME}_linux`; // TODO Replace _ with -
+    }
+    else if (IS_MACOS) {
+        return `${exports.TOOL_NAME}-darwin`;
+    }
+    else {
+        (0, core_1.error)(`Platform ${process.platform} not supported by this GitHub Action`);
+        return ``;
+    }
+}
 function createDetectDownloadUrl(repoUrl = TOOL_BINARY_REPO_URL) {
     if (IS_WINDOWS) {
         return `${repoUrl}/${inputs_1.TOOL_VERSION}/${exports.TOOL_NAME}-win32`;
