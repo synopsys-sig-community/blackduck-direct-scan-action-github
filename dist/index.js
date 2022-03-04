@@ -5627,14 +5627,15 @@ function get_tool_binary_name() {
     }
 }
 function createDetectDownloadUrl(repoUrl = TOOL_BINARY_REPO_URL) {
+    let bin_name = get_tool_binary_name();
     if (IS_WINDOWS) {
-        return `${repoUrl}/${inputs_1.TOOL_VERSION}/${exports.TOOL_NAME}-win32`;
+        return `${repoUrl}/${inputs_1.TOOL_VERSION}/${bin_name}`;
     }
     else if (IS_LINUX) {
-        return `${repoUrl}/${inputs_1.TOOL_VERSION}/${exports.TOOL_NAME}_linux`; // TODO Replace _ with -
+        return `${repoUrl}/${inputs_1.TOOL_VERSION}/${bin_name}`;
     }
     else if (IS_MACOS) {
-        return `${repoUrl}/${inputs_1.TOOL_VERSION}/${exports.TOOL_NAME}_darwin`;
+        return `${repoUrl}/${inputs_1.TOOL_VERSION}/${bin_name}`;
     }
     else {
         (0, core_1.error)(`Platform ${process.platform} not supported by this GitHub Action`);
