@@ -3,6 +3,7 @@ import { exec } from "@actions/exec";
 import path from "path";
 import { TOOL_VERSION } from "./inputs";
 import { error, info } from "@actions/core";
+import * as fs from "fs";
 
 const IS_WINDOWS = process.platform === "win32";
 const IS_LINUX = process.platform === "linux";
@@ -28,15 +29,27 @@ export async function findOrDownloadTool(): Promise<string> {
 
   info(`download_url = ${download_url}`);
 
-  const tool_download_path = await downloadTool(download_url;
-  const cacheFolder = await cacheFile(tool_download_path, bin_name, TOOL_NAME, TOOL_VERSION)
+  const tool_download_path = await downloadTool(download_url);
+  const cacheFolder = await cacheFile(
+    tool_download_path,
+    bin_name,
+    TOOL_NAME,
+    TOOL_VERSION
+  );
 
-  info(`Downloaded: ` + download_url + ` to ` + tool_download_path + ` in: ` + cacheFolder)
-  info(`cacheFolder=` + cacheFolder + ` binaryName=` + bin_name)
+  info(
+    `Downloaded: ` +
+      download_url +
+      ` to ` +
+      tool_download_path +
+      ` in: ` +
+      cacheFolder
+  );
+  info(`cacheFolder=` + cacheFolder + ` binaryName=` + bin_name);
 
-  await fs.chmod(cacheFolder + "/" + bin_name, 0o555, function(){})
+  await fs.chmod(cacheFolder + "/" + bin_name, 0o555, function () {});
 
-  return(path.resolve(cacheFolder, binaryName))
+  return path.resolve(cacheFolder, bin_name);
 }
 
 export async function run_tool(
@@ -61,12 +74,13 @@ function get_tool_binary_name(): string {
 }
 
 function createDetectDownloadUrl(repoUrl = TOOL_BINARY_REPO_URL): string {
+  let bin_name = get_tool_binary_name();
   if (IS_WINDOWS) {
-    return `${repoUrl}/${TOOL_VERSION}/${TOOL_NAME}-win32`;
+    return `${repoUrl}/${TOOL_VERSION}/${bin_name}`;
   } else if (IS_LINUX) {
-    return `${repoUrl}/${TOOL_VERSION}/${TOOL_NAME}_linux`; // TODO Replace _ with -
+    return `${repoUrl}/${TOOL_VERSION}/${bin_name}`;
   } else if (IS_MACOS) {
-    return `${repoUrl}/${TOOL_VERSION}/${TOOL_NAME}_darwin`;
+    return `${repoUrl}/${TOOL_VERSION}/${bin_name}`;
   } else {
     error(`Platform ${process.platform} not supported by this GitHub Action`);
     return ``;
