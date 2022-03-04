@@ -8,7 +8,7 @@ const IS_WINDOWS = process.platform === "win32";
 const IS_LINUX = process.platform === "linux";
 const IS_MACOS = process.platform === "darwin";
 
-const TOOL_BINARY_REPO_URL = `https://github.com/synopsys-sig-community/blackduck-direct-scan-action/releases/download/`
+const TOOL_BINARY_REPO_URL = `https://github.com/synopsys-sig-community/blackduck-direct-scan-action/releases/download`;
 
 export const TOOL_NAME = "bd_direct_scan";
 
@@ -52,11 +52,11 @@ export async function run_tool(
 
 function createDetectDownloadUrl(repoUrl = TOOL_BINARY_REPO_URL): string {
   if (IS_WINDOWS) {
-    return `${repoUrl}/${TOOL_VERSION}/{TOOL_NAME}-win32`;
+    return `${repoUrl}/${TOOL_VERSION}/${TOOL_NAME}-win32`;
   } else if (IS_LINUX) {
-    return `${repoUrl}/${TOOL_VERSION}/{TOOL_NAME}_linux`; // TODO Replace _ with -
+    return `${repoUrl}/${TOOL_VERSION}/${TOOL_NAME}_linux`; // TODO Replace _ with -
   } else if (IS_MACOS) {
-    return `${repoUrl}/${TOOL_VERSION}/{TOOL_NAME}_darwin`;
+    return `${repoUrl}/${TOOL_VERSION}/${TOOL_NAME}_darwin`;
   } else {
     error(`Platform ${process.platform} not supported by this GitHub Action`);
     return ``;
