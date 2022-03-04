@@ -5616,7 +5616,7 @@ function get_tool_binary_name() {
         return `${exports.TOOL_NAME}-win32.exe`;
     }
     else if (IS_LINUX) {
-        return `${exports.TOOL_NAME}_linux`; // TODO Replace _ with -
+        return `${exports.TOOL_NAME}-linux`; // TODO Replace _ with -
     }
     else if (IS_MACOS) {
         return `${exports.TOOL_NAME}-darwin`;
