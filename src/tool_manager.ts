@@ -13,7 +13,7 @@ const TOOL_BINARY_REPO_URL = `https://github.com/synopsys-sig-community/blackduc
 export const TOOL_NAME = "bd_direct_scan";
 
 export async function findOrDownloadTool(): Promise<string> {
-  let bin_name = get_tool_binary_name()
+  let bin_name = get_tool_binary_name();
 
   info(`bin_name = ${bin_name}`);
 
@@ -28,14 +28,15 @@ export async function findOrDownloadTool(): Promise<string> {
 
   info(`download_url = ${download_url}`);
 
-  return (
-    downloadTool(download_url)
-      .then((detectDownloadPath) =>
-        cacheFile(detectDownloadPath, bin_name, TOOL_NAME, TOOL_VERSION)
-      )
-      //TODO: Jarsigner?
-      .then((cachedFolder) => path.resolve(cachedFolder, bin_name))
-  );
+  const tool_download_path = await downloadTool(download_url;
+  const cacheFolder = await cacheFile(tool_download_path, bin_name, TOOL_NAME, TOOL_VERSION)
+
+  info(`Downloaded: ` + download_url + ` to ` + tool_download_path + ` in: ` + cacheFolder)
+  info(`cacheFolder=` + cacheFolder + ` binaryName=` + bin_name)
+
+  await fs.chmod(cacheFolder + "/" + bin_name, 0o555, function(){})
+
+  return(path.resolve(cacheFolder, binaryName))
 }
 
 export async function run_tool(
