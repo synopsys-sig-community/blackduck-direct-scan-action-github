@@ -5531,6 +5531,29 @@ run();
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -5550,6 +5573,7 @@ const exec_1 = __nccwpck_require__(514);
 const path_1 = __importDefault(__nccwpck_require__(622));
 const inputs_1 = __nccwpck_require__(63);
 const core_1 = __nccwpck_require__(186);
+const fs = __importStar(__nccwpck_require__(747));
 const IS_WINDOWS = process.platform === "win32";
 const IS_LINUX = process.platform === "linux";
 const IS_MACOS = process.platform === "darwin";
@@ -5566,10 +5590,17 @@ function findOrDownloadTool() {
         (0, core_1.info)(`cached_tool = ${cached_tool}`);
         const download_url = createDetectDownloadUrl();
         (0, core_1.info)(`download_url = ${download_url}`);
-        return ((0, tool_cache_1.downloadTool)(download_url)
-            .then((detectDownloadPath) => (0, tool_cache_1.cacheFile)(detectDownloadPath, bin_name, exports.TOOL_NAME, inputs_1.TOOL_VERSION))
-            //TODO: Jarsigner?
-            .then((cachedFolder) => path_1.default.resolve(cachedFolder, bin_name)));
+        const tool_download_path = yield (0, tool_cache_1.downloadTool)(download_url);
+        const cacheFolder = yield (0, tool_cache_1.cacheFile)(tool_download_path, bin_name, exports.TOOL_NAME, inputs_1.TOOL_VERSION);
+        (0, core_1.info)(`Downloaded: ` +
+            download_url +
+            ` to ` +
+            tool_download_path +
+            ` in: ` +
+            cacheFolder);
+        (0, core_1.info)(`cacheFolder=` + cacheFolder + ` binaryName=` + bin_name);
+        yield fs.chmod(cacheFolder + "/" + bin_name, 0o555, function () { });
+        return path_1.default.resolve(cacheFolder, bin_name);
     });
 }
 exports.findOrDownloadTool = findOrDownloadTool;
