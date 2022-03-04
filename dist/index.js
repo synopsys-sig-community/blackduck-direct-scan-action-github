@@ -1,201 +1,5 @@
-require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
-/******/ 	var __webpack_modules__ = ({
-
-/***/ 180:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.DETECT_OPTS = exports.NO_CHECK = exports.UPGRADE_MAJOR = exports.INCREMENTAL_RESULTS = exports.SARIF = exports.COMMENT_ON_PR = exports.FIX_PR = exports.VERSION = exports.PROJECT = exports.TRUST_CERT = exports.OUTPUT_PATH = exports.BLACKDUCK_API_TOKEN = exports.BLACKDUCK_URL = exports.DEBUG = exports.SCAN_MODE = exports.TOOL_VERSION = exports.GITHUB_TOKEN = void 0;
-const core_1 = __nccwpck_require__(186);
-exports.GITHUB_TOKEN = (0, core_1.getInput)("github_token");
-exports.TOOL_VERSION = (0, core_1.getInput)("tool_version");
-exports.SCAN_MODE = (0, core_1.getInput)("mode").toUpperCase();
-exports.DEBUG = (0, core_1.getInput)("debug");
-exports.BLACKDUCK_URL = (0, core_1.getInput)("url");
-exports.BLACKDUCK_API_TOKEN = (0, core_1.getInput)("token");
-exports.OUTPUT_PATH = (0, core_1.getInput)("output");
-exports.TRUST_CERT = (0, core_1.getInput)("trustcert");
-exports.PROJECT = (0, core_1.getInput)("project");
-exports.VERSION = (0, core_1.getInput)("version");
-exports.FIX_PR = (0, core_1.getInput)("fix_pr");
-exports.COMMENT_ON_PR = (0, core_1.getInput)("comment_on_pr");
-exports.SARIF = (0, core_1.getInput)("sarif");
-exports.INCREMENTAL_RESULTS = (0, core_1.getInput)("incremental_results");
-exports.UPGRADE_MAJOR = (0, core_1.getInput)("upgrade_major");
-exports.NO_CHECK = (0, core_1.getInput)("nocheck");
-exports.DETECT_OPTS = (0, core_1.getInput)("detect_opts");
-
-
-/***/ }),
-
-/***/ 109:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = void 0;
-const core_1 = __nccwpck_require__(186);
-const path_1 = __importDefault(__nccwpck_require__(622));
-const inputs_1 = __nccwpck_require__(180);
-const tool_manager_1 = __nccwpck_require__(321);
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        (0, core_1.info)(`tool-version: ${inputs_1.TOOL_VERSION}`);
-        (0, core_1.info)(`scan-mode: ${inputs_1.SCAN_MODE}`);
-        const runnerTemp = process.env.RUNNER_TEMP;
-        let outputPath = "";
-        if (inputs_1.OUTPUT_PATH !== "") {
-            outputPath = inputs_1.OUTPUT_PATH;
-        }
-        else if (runnerTemp === undefined) {
-            (0, core_1.setFailed)("$RUNNER_TEMP is not defined and output was not set. Cannot determine where to store output files.");
-            return;
-        }
-        else {
-            outputPath = path_1.default.resolve(runnerTemp, "blackduck");
-        }
-        const tool_args = [
-            `--debug=${inputs_1.DEBUG}`,
-            `--url=${inputs_1.BLACKDUCK_URL}`,
-            `--token=${inputs_1.BLACKDUCK_API_TOKEN}`,
-            `--trustcert=${inputs_1.TRUST_CERT}`,
-            `--mode=${inputs_1.SCAN_MODE}`,
-            `--output=${outputPath}`,
-            `--fix_pr=${inputs_1.FIX_PR}`,
-            `--comment_on_pr=${inputs_1.COMMENT_ON_PR}`,
-            `--upgrade_major=${inputs_1.UPGRADE_MAJOR}`,
-            `--sarif=${inputs_1.SARIF}`,
-            `--incremental_results=${inputs_1.INCREMENTAL_RESULTS}`,
-            `--nocheck=${inputs_1.NO_CHECK}`,
-            "--scm=github",
-        ];
-        if (inputs_1.DETECT_OPTS !== "") {
-            tool_args.push(`--detect_opts=${inputs_1.DETECT_OPTS}`);
-        }
-        if (inputs_1.PROJECT !== "") {
-            tool_args.push(`--project=${inputs_1.PROJECT}`);
-        }
-        if (inputs_1.VERSION !== "") {
-            tool_args.push(`--version=${inputs_1.VERSION}`);
-        }
-        (0, core_1.info)(`tool_args=${tool_args}`);
-        const tool_path = yield (0, tool_manager_1.findOrDownloadTool)().catch((reason) => {
-            (0, core_1.setFailed)(`Could not download ${tool_manager_1.TOOL_NAME} ${inputs_1.TOOL_VERSION}: ${reason}`);
-        });
-        if (tool_path === undefined) {
-            (0, core_1.debug)(`Could not determine ${tool_manager_1.TOOL_NAME} path.`);
-            return;
-        }
-        const tool_exit_code = yield (0, tool_manager_1.run_tool)(tool_path, tool_args).catch((reason) => {
-            (0, core_1.setFailed)(`Could not execute ${tool_manager_1.TOOL_NAME} ${inputs_1.TOOL_VERSION}: ${reason}`);
-        });
-        if (tool_exit_code === undefined) {
-            (0, core_1.debug)(`Could not determine ${tool_manager_1.TOOL_NAME} exit code. `);
-            return;
-        }
-        else if (tool_exit_code > 0) {
-            (0, core_1.setFailed)(`Detect failed with exit code: ${tool_exit_code}. Check the logs for more information.`);
-            return;
-        }
-        (0, core_1.info)(`${tool_manager_1.TOOL_NAME} executed successfully.`);
-    });
-}
-exports.run = run;
-run();
-
-
-/***/ }),
-
-/***/ 321:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run_tool = exports.findOrDownloadTool = exports.TOOL_NAME = void 0;
-const tool_cache_1 = __nccwpck_require__(784);
-const exec_1 = __nccwpck_require__(514);
-const path_1 = __importDefault(__nccwpck_require__(622));
-const inputs_1 = __nccwpck_require__(180);
-const core_1 = __nccwpck_require__(186);
-const IS_WINDOWS = process.platform === "win32";
-const IS_LINUX = process.platform === "linux";
-const IS_MACOS = process.platform === "darwin";
-const TOOL_BINARY_REPO_URL = `https://github.com/synopsys-sig-community/blackduck-direct-scan-action/releases/tag`; // bd_direct_scan%2Dmacos
-exports.TOOL_NAME = "bd_direct_scan";
-function findOrDownloadTool() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let bin_name = exports.TOOL_NAME;
-        if (IS_WINDOWS) {
-            bin_name += ".exe";
-        }
-        (0, core_1.info)(`bin_name = ${bin_name}`);
-        const cached_tool = (0, tool_cache_1.find)(bin_name, inputs_1.TOOL_VERSION);
-        if (cached_tool) {
-            return path_1.default.resolve(cached_tool, bin_name);
-        }
-        (0, core_1.info)(`cached_tool = ${cached_tool}`);
-        const download_url = createDetectDownloadUrl();
-        (0, core_1.info)(`download_url = ${download_url}`);
-        return ((0, tool_cache_1.downloadTool)(download_url)
-            .then((detectDownloadPath) => (0, tool_cache_1.cacheFile)(detectDownloadPath, bin_name, exports.TOOL_NAME, inputs_1.TOOL_VERSION))
-            //TODO: Jarsigner?
-            .then((cachedFolder) => path_1.default.resolve(cachedFolder, bin_name)));
-    });
-}
-exports.findOrDownloadTool = findOrDownloadTool;
-function run_tool(tool_path, args) {
-    return __awaiter(this, void 0, void 0, function* () {
-        (0, core_1.info)(`run_tool tool_path = ${tool_path} args = ${args}`);
-        return (0, exec_1.exec)(tool_path, args, { ignoreReturnCode: true });
-    });
-}
-exports.run_tool = run_tool;
-function createDetectDownloadUrl(repoUrl = TOOL_BINARY_REPO_URL) {
-    if (IS_WINDOWS) {
-        return `${repoUrl}/${inputs_1.TOOL_VERSION}#:~:text=${exports.TOOL_NAME}%2Dwin32`;
-    }
-    else if (IS_LINUX) {
-        return `${repoUrl}/${inputs_1.TOOL_VERSION}#:~:text=${exports.TOOL_NAME}%2Dlinux`;
-    }
-    else if (IS_MACOS) {
-        return `${repoUrl}/${inputs_1.TOOL_VERSION}#:~:text=${exports.TOOL_NAME}%2Ddarwin`;
-    }
-    else {
-        (0, core_1.error)(`Platform ${process.platform} not supported by this GitHub Action`);
-        return ``;
-    }
-}
-
-
-/***/ }),
+import './sourcemap-register.cjs';import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
+/******/ var __webpack_modules__ = ({
 
 /***/ 351:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
@@ -5602,11 +5406,207 @@ module.exports = v4;
 
 /***/ }),
 
+/***/ 63:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DETECT_OPTS = exports.NO_CHECK = exports.UPGRADE_MAJOR = exports.INCREMENTAL_RESULTS = exports.SARIF = exports.COMMENT_ON_PR = exports.FIX_PR = exports.VERSION = exports.PROJECT = exports.TRUST_CERT = exports.OUTPUT_PATH = exports.BLACKDUCK_API_TOKEN = exports.BLACKDUCK_URL = exports.DEBUG = exports.SCAN_MODE = exports.TOOL_VERSION = exports.GITHUB_TOKEN = void 0;
+const core_1 = __nccwpck_require__(186);
+exports.GITHUB_TOKEN = (0, core_1.getInput)("github_token");
+exports.TOOL_VERSION = (0, core_1.getInput)("tool_version");
+exports.SCAN_MODE = (0, core_1.getInput)("mode").toUpperCase();
+exports.DEBUG = (0, core_1.getInput)("debug");
+exports.BLACKDUCK_URL = (0, core_1.getInput)("url");
+exports.BLACKDUCK_API_TOKEN = (0, core_1.getInput)("token");
+exports.OUTPUT_PATH = (0, core_1.getInput)("output");
+exports.TRUST_CERT = (0, core_1.getInput)("trustcert");
+exports.PROJECT = (0, core_1.getInput)("project");
+exports.VERSION = (0, core_1.getInput)("version");
+exports.FIX_PR = (0, core_1.getInput)("fix_pr");
+exports.COMMENT_ON_PR = (0, core_1.getInput)("comment_on_pr");
+exports.SARIF = (0, core_1.getInput)("sarif");
+exports.INCREMENTAL_RESULTS = (0, core_1.getInput)("incremental_results");
+exports.UPGRADE_MAJOR = (0, core_1.getInput)("upgrade_major");
+exports.NO_CHECK = (0, core_1.getInput)("nocheck");
+exports.DETECT_OPTS = (0, core_1.getInput)("detect_opts");
+
+
+/***/ }),
+
+/***/ 399:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = void 0;
+const core_1 = __nccwpck_require__(186);
+const path_1 = __importDefault(__nccwpck_require__(622));
+const inputs_1 = __nccwpck_require__(63);
+const tool_manager_1 = __nccwpck_require__(940);
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, core_1.info)(`tool-version: ${inputs_1.TOOL_VERSION}`);
+        (0, core_1.info)(`scan-mode: ${inputs_1.SCAN_MODE}`);
+        const runnerTemp = process.env.RUNNER_TEMP;
+        let outputPath = "";
+        if (inputs_1.OUTPUT_PATH !== "") {
+            outputPath = inputs_1.OUTPUT_PATH;
+        }
+        else if (runnerTemp === undefined) {
+            (0, core_1.setFailed)("$RUNNER_TEMP is not defined and output was not set. Cannot determine where to store output files.");
+            return;
+        }
+        else {
+            outputPath = path_1.default.resolve(runnerTemp, "blackduck");
+        }
+        const tool_args = [
+            `--debug=${inputs_1.DEBUG}`,
+            `--url=${inputs_1.BLACKDUCK_URL}`,
+            `--token=${inputs_1.BLACKDUCK_API_TOKEN}`,
+            `--trustcert=${inputs_1.TRUST_CERT}`,
+            `--mode=${inputs_1.SCAN_MODE}`,
+            `--output=${outputPath}`,
+            `--fix_pr=${inputs_1.FIX_PR}`,
+            `--comment_on_pr=${inputs_1.COMMENT_ON_PR}`,
+            `--upgrade_major=${inputs_1.UPGRADE_MAJOR}`,
+            `--sarif=${inputs_1.SARIF}`,
+            `--incremental_results=${inputs_1.INCREMENTAL_RESULTS}`,
+            `--nocheck=${inputs_1.NO_CHECK}`,
+            "--scm=github",
+        ];
+        if (inputs_1.DETECT_OPTS !== "") {
+            tool_args.push(`--detect_opts=${inputs_1.DETECT_OPTS}`);
+        }
+        if (inputs_1.PROJECT !== "") {
+            tool_args.push(`--project=${inputs_1.PROJECT}`);
+        }
+        if (inputs_1.VERSION !== "") {
+            tool_args.push(`--version=${inputs_1.VERSION}`);
+        }
+        (0, core_1.info)(`tool_args=${tool_args}`);
+        const tool_path = yield (0, tool_manager_1.findOrDownloadTool)().catch((reason) => {
+            (0, core_1.setFailed)(`Could not download ${tool_manager_1.TOOL_NAME} ${inputs_1.TOOL_VERSION}: ${reason}`);
+        });
+        if (tool_path === undefined) {
+            (0, core_1.debug)(`Could not determine ${tool_manager_1.TOOL_NAME} path.`);
+            return;
+        }
+        const tool_exit_code = yield (0, tool_manager_1.run_tool)(tool_path, tool_args).catch((reason) => {
+            (0, core_1.setFailed)(`Could not execute ${tool_manager_1.TOOL_NAME} ${inputs_1.TOOL_VERSION}: ${reason}`);
+        });
+        if (tool_exit_code === undefined) {
+            (0, core_1.debug)(`Could not determine ${tool_manager_1.TOOL_NAME} exit code. `);
+            return;
+        }
+        else if (tool_exit_code > 0) {
+            (0, core_1.setFailed)(`Detect failed with exit code: ${tool_exit_code}. Check the logs for more information.`);
+            return;
+        }
+        (0, core_1.info)(`${tool_manager_1.TOOL_NAME} executed successfully.`);
+    });
+}
+exports.run = run;
+run();
+
+
+/***/ }),
+
+/***/ 940:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run_tool = exports.findOrDownloadTool = exports.TOOL_NAME = void 0;
+const tool_cache_1 = __nccwpck_require__(784);
+const exec_1 = __nccwpck_require__(514);
+const path_1 = __importDefault(__nccwpck_require__(622));
+const inputs_1 = __nccwpck_require__(63);
+const core_1 = __nccwpck_require__(186);
+const IS_WINDOWS = process.platform === "win32";
+const IS_LINUX = process.platform === "linux";
+const IS_MACOS = process.platform === "darwin";
+const TOOL_BINARY_REPO_URL = `https://github.com/synopsys-sig-community/blackduck-direct-scan-action/releases/tag`; // bd_direct_scan%2Dmacos
+exports.TOOL_NAME = "bd_direct_scan";
+function findOrDownloadTool() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let bin_name = exports.TOOL_NAME;
+        if (IS_WINDOWS) {
+            bin_name += ".exe";
+        }
+        (0, core_1.info)(`bin_name = ${bin_name}`);
+        const cached_tool = (0, tool_cache_1.find)(bin_name, inputs_1.TOOL_VERSION);
+        if (cached_tool) {
+            return path_1.default.resolve(cached_tool, bin_name);
+        }
+        (0, core_1.info)(`cached_tool = ${cached_tool}`);
+        const download_url = createDetectDownloadUrl();
+        (0, core_1.info)(`download_url = ${download_url}`);
+        return ((0, tool_cache_1.downloadTool)(download_url)
+            .then((detectDownloadPath) => (0, tool_cache_1.cacheFile)(detectDownloadPath, bin_name, exports.TOOL_NAME, inputs_1.TOOL_VERSION))
+            //TODO: Jarsigner?
+            .then((cachedFolder) => path_1.default.resolve(cachedFolder, bin_name)));
+    });
+}
+exports.findOrDownloadTool = findOrDownloadTool;
+function run_tool(tool_path, args) {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, core_1.info)(`run_tool tool_path = ${tool_path} args = ${args}`);
+        return (0, exec_1.exec)(tool_path, args, { ignoreReturnCode: true });
+    });
+}
+exports.run_tool = run_tool;
+function createDetectDownloadUrl(repoUrl = TOOL_BINARY_REPO_URL) {
+    if (IS_WINDOWS) {
+        return `${repoUrl}/${inputs_1.TOOL_VERSION}#:~:text=${exports.TOOL_NAME}%2Dwin32`;
+    }
+    else if (IS_LINUX) {
+        return `${repoUrl}/${inputs_1.TOOL_VERSION}#:~:text=${exports.TOOL_NAME}%2Dlinux`;
+    }
+    else if (IS_MACOS) {
+        return `${repoUrl}/${inputs_1.TOOL_VERSION}#:~:text=${exports.TOOL_NAME}%2Ddarwin`;
+    }
+    else {
+        (0, core_1.error)(`Platform ${process.platform} not supported by this GitHub Action`);
+        return ``;
+    }
+}
+
+
+/***/ }),
+
 /***/ 357:
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("assert");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("assert");
 
 /***/ }),
 
@@ -5614,7 +5614,7 @@ module.exports = require("assert");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("child_process");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("child_process");
 
 /***/ }),
 
@@ -5622,7 +5622,7 @@ module.exports = require("child_process");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("crypto");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("crypto");
 
 /***/ }),
 
@@ -5630,7 +5630,7 @@ module.exports = require("crypto");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("events");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("events");
 
 /***/ }),
 
@@ -5638,7 +5638,7 @@ module.exports = require("events");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("fs");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("fs");
 
 /***/ }),
 
@@ -5646,7 +5646,7 @@ module.exports = require("fs");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("http");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("http");
 
 /***/ }),
 
@@ -5654,7 +5654,7 @@ module.exports = require("http");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("https");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("https");
 
 /***/ }),
 
@@ -5662,7 +5662,7 @@ module.exports = require("https");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("net");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("net");
 
 /***/ }),
 
@@ -5670,7 +5670,7 @@ module.exports = require("net");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("os");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("os");
 
 /***/ }),
 
@@ -5678,7 +5678,7 @@ module.exports = require("os");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("path");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("path");
 
 /***/ }),
 
@@ -5686,7 +5686,7 @@ module.exports = require("path");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("stream");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("stream");
 
 /***/ }),
 
@@ -5694,7 +5694,7 @@ module.exports = require("stream");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("string_decoder");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("string_decoder");
 
 /***/ }),
 
@@ -5702,7 +5702,7 @@ module.exports = require("string_decoder");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("timers");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("timers");
 
 /***/ }),
 
@@ -5710,7 +5710,7 @@ module.exports = require("timers");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("tls");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("tls");
 
 /***/ }),
 
@@ -5718,55 +5718,53 @@ module.exports = require("tls");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("util");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("util");
 
 /***/ })
 
-/******/ 	});
+/******/ });
 /************************************************************************/
-/******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
-/******/ 	
-/******/ 	// The require function
-/******/ 	function __nccwpck_require__(moduleId) {
-/******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 		if (cachedModule !== undefined) {
-/******/ 			return cachedModule.exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			// no module.id needed
-/******/ 			// no module.loaded needed
-/******/ 			exports: {}
-/******/ 		};
-/******/ 	
-/******/ 		// Execute the module function
-/******/ 		var threw = true;
-/******/ 		try {
-/******/ 			__webpack_modules__[moduleId].call(module.exports, module, module.exports, __nccwpck_require__);
-/******/ 			threw = false;
-/******/ 		} finally {
-/******/ 			if(threw) delete __webpack_module_cache__[moduleId];
-/******/ 		}
-/******/ 	
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
+/******/ // The module cache
+/******/ var __webpack_module_cache__ = {};
+/******/ 
+/******/ // The require function
+/******/ function __nccwpck_require__(moduleId) {
+/******/ 	// Check if module is in cache
+/******/ 	var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 	if (cachedModule !== undefined) {
+/******/ 		return cachedModule.exports;
 /******/ 	}
-/******/ 	
+/******/ 	// Create a new module (and put it into the cache)
+/******/ 	var module = __webpack_module_cache__[moduleId] = {
+/******/ 		// no module.id needed
+/******/ 		// no module.loaded needed
+/******/ 		exports: {}
+/******/ 	};
+/******/ 
+/******/ 	// Execute the module function
+/******/ 	var threw = true;
+/******/ 	try {
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __nccwpck_require__);
+/******/ 		threw = false;
+/******/ 	} finally {
+/******/ 		if(threw) delete __webpack_module_cache__[moduleId];
+/******/ 	}
+/******/ 
+/******/ 	// Return the exports of the module
+/******/ 	return module.exports;
+/******/ }
+/******/ 
 /************************************************************************/
-/******/ 	/* webpack/runtime/compat */
-/******/ 	
-/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
-/******/ 	
+/******/ /* webpack/runtime/compat */
+/******/ 
+/******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
+/******/ 
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(109);
-/******/ 	module.exports = __webpack_exports__;
-/******/ 	
-/******/ })()
-;
+/******/ 
+/******/ // startup
+/******/ // Load entry module and return exports
+/******/ // This entry module is referenced by other modules so it can't be inlined
+/******/ var __webpack_exports__ = __nccwpck_require__(399);
+/******/ 
+
 //# sourceMappingURL=index.js.map
