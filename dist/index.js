@@ -9,23 +9,23 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DETECT_OPTS = exports.NO_CHECK = exports.UPGRADE_MAJOR = exports.INCREMENTAL_RESULTS = exports.SARIF = exports.COMMENT_ON_PR = exports.FIX_PR = exports.VERSION = exports.PROJECT = exports.TRUST_CERT = exports.OUTPUT_PATH = exports.BLACKDUCK_API_TOKEN = exports.BLACKDUCK_URL = exports.DEBUG = exports.SCAN_MODE = exports.TOOL_VERSION = exports.GITHUB_TOKEN = void 0;
 const core_1 = __nccwpck_require__(186);
-exports.GITHUB_TOKEN = (0, core_1.getInput)('github_token');
-exports.TOOL_VERSION = (0, core_1.getInput)('tool_version');
-exports.SCAN_MODE = (0, core_1.getInput)('mode').toUpperCase();
-exports.DEBUG = (0, core_1.getInput)('debug');
-exports.BLACKDUCK_URL = (0, core_1.getInput)('url');
-exports.BLACKDUCK_API_TOKEN = (0, core_1.getInput)('token');
-exports.OUTPUT_PATH = (0, core_1.getInput)('output');
-exports.TRUST_CERT = (0, core_1.getInput)('trustcert');
-exports.PROJECT = (0, core_1.getInput)('project');
-exports.VERSION = (0, core_1.getInput)('version');
-exports.FIX_PR = (0, core_1.getInput)('fix_pr');
-exports.COMMENT_ON_PR = (0, core_1.getInput)('comment_on_pr');
-exports.SARIF = (0, core_1.getInput)('sarif');
-exports.INCREMENTAL_RESULTS = (0, core_1.getInput)('incremental_results');
-exports.UPGRADE_MAJOR = (0, core_1.getInput)('upgrade_major');
-exports.NO_CHECK = (0, core_1.getInput)('nocheck');
-exports.DETECT_OPTS = (0, core_1.getInput)('detect_opts');
+exports.GITHUB_TOKEN = (0, core_1.getInput)("github_token");
+exports.TOOL_VERSION = (0, core_1.getInput)("tool_version");
+exports.SCAN_MODE = (0, core_1.getInput)("mode").toUpperCase();
+exports.DEBUG = (0, core_1.getInput)("debug");
+exports.BLACKDUCK_URL = (0, core_1.getInput)("url");
+exports.BLACKDUCK_API_TOKEN = (0, core_1.getInput)("token");
+exports.OUTPUT_PATH = (0, core_1.getInput)("output");
+exports.TRUST_CERT = (0, core_1.getInput)("trustcert");
+exports.PROJECT = (0, core_1.getInput)("project");
+exports.VERSION = (0, core_1.getInput)("version");
+exports.FIX_PR = (0, core_1.getInput)("fix_pr");
+exports.COMMENT_ON_PR = (0, core_1.getInput)("comment_on_pr");
+exports.SARIF = (0, core_1.getInput)("sarif");
+exports.INCREMENTAL_RESULTS = (0, core_1.getInput)("incremental_results");
+exports.UPGRADE_MAJOR = (0, core_1.getInput)("upgrade_major");
+exports.NO_CHECK = (0, core_1.getInput)("nocheck");
+exports.DETECT_OPTS = (0, core_1.getInput)("detect_opts");
 
 
 /***/ }),
@@ -58,16 +58,16 @@ function run() {
         (0, core_1.info)(`tool-version: ${inputs_1.TOOL_VERSION}`);
         (0, core_1.info)(`scan-mode: ${inputs_1.SCAN_MODE}`);
         const runnerTemp = process.env.RUNNER_TEMP;
-        let outputPath = '';
-        if (inputs_1.OUTPUT_PATH !== '') {
+        let outputPath = "";
+        if (inputs_1.OUTPUT_PATH !== "") {
             outputPath = inputs_1.OUTPUT_PATH;
         }
         else if (runnerTemp === undefined) {
-            (0, core_1.setFailed)('$RUNNER_TEMP is not defined and output was not set. Cannot determine where to store output files.');
+            (0, core_1.setFailed)("$RUNNER_TEMP is not defined and output was not set. Cannot determine where to store output files.");
             return;
         }
         else {
-            outputPath = path_1.default.resolve(runnerTemp, 'blackduck');
+            outputPath = path_1.default.resolve(runnerTemp, "blackduck");
         }
         const tool_args = [
             `--debug=${inputs_1.DEBUG}`,
@@ -82,26 +82,26 @@ function run() {
             `--sarif=${inputs_1.SARIF}`,
             `--incremental_results=${inputs_1.INCREMENTAL_RESULTS}`,
             `--nocheck=${inputs_1.NO_CHECK}`,
-            '--scm=github'
+            "--scm=github",
         ];
-        if (inputs_1.DETECT_OPTS !== '') {
+        if (inputs_1.DETECT_OPTS !== "") {
             tool_args.push(`--detect_opts=${inputs_1.DETECT_OPTS}`);
         }
-        if (inputs_1.PROJECT !== '') {
+        if (inputs_1.PROJECT !== "") {
             tool_args.push(`--project=${inputs_1.PROJECT}`);
         }
-        if (inputs_1.VERSION !== '') {
+        if (inputs_1.VERSION !== "") {
             tool_args.push(`--version=${inputs_1.VERSION}`);
         }
         (0, core_1.info)(`tool_args=${tool_args}`);
-        const tool_path = yield (0, tool_manager_1.findOrDownloadTool)().catch(reason => {
+        const tool_path = yield (0, tool_manager_1.findOrDownloadTool)().catch((reason) => {
             (0, core_1.setFailed)(`Could not download ${tool_manager_1.TOOL_NAME} ${inputs_1.TOOL_VERSION}: ${reason}`);
         });
         if (tool_path === undefined) {
             (0, core_1.debug)(`Could not determine ${tool_manager_1.TOOL_NAME} path.`);
             return;
         }
-        const tool_exit_code = yield (0, tool_manager_1.run_tool)(tool_path, tool_args).catch(reason => {
+        const tool_exit_code = yield (0, tool_manager_1.run_tool)(tool_path, tool_args).catch((reason) => {
             (0, core_1.setFailed)(`Could not execute ${tool_manager_1.TOOL_NAME} ${inputs_1.TOOL_VERSION}: ${reason}`);
         });
         if (tool_exit_code === undefined) {
@@ -145,16 +145,16 @@ const exec_1 = __nccwpck_require__(514);
 const path_1 = __importDefault(__nccwpck_require__(622));
 const inputs_1 = __nccwpck_require__(180);
 const core_1 = __nccwpck_require__(186);
-const IS_WINDOWS = process.platform === 'win32';
-const IS_LINUX = process.platform === 'linux';
-const IS_MACOS = process.platform === 'darwin';
+const IS_WINDOWS = process.platform === "win32";
+const IS_LINUX = process.platform === "linux";
+const IS_MACOS = process.platform === "darwin";
 const TOOL_BINARY_REPO_URL = `https://github.com/synopsys-sig-community/blackduck-direct-scan-action/releases/tag`; // bd_direct_scan%2Dmacos
-exports.TOOL_NAME = 'bd_direct_scan';
+exports.TOOL_NAME = "bd_direct_scan";
 function findOrDownloadTool() {
     return __awaiter(this, void 0, void 0, function* () {
         let bin_name = exports.TOOL_NAME;
         if (IS_WINDOWS) {
-            bin_name += '.exe';
+            bin_name += ".exe";
         }
         (0, core_1.info)(`bin_name = ${bin_name}`);
         const cached_tool = (0, tool_cache_1.find)(bin_name, inputs_1.TOOL_VERSION);
@@ -165,9 +165,9 @@ function findOrDownloadTool() {
         const download_url = createDetectDownloadUrl();
         (0, core_1.info)(`download_url = ${download_url}`);
         return ((0, tool_cache_1.downloadTool)(download_url)
-            .then(detectDownloadPath => (0, tool_cache_1.cacheFile)(detectDownloadPath, bin_name, exports.TOOL_NAME, inputs_1.TOOL_VERSION))
+            .then((detectDownloadPath) => (0, tool_cache_1.cacheFile)(detectDownloadPath, bin_name, exports.TOOL_NAME, inputs_1.TOOL_VERSION))
             //TODO: Jarsigner?
-            .then(cachedFolder => path_1.default.resolve(cachedFolder, bin_name)));
+            .then((cachedFolder) => path_1.default.resolve(cachedFolder, bin_name)));
     });
 }
 exports.findOrDownloadTool = findOrDownloadTool;

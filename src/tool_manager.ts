@@ -1,39 +1,63 @@
-import { find, downloadTool, cacheFile } from '@actions/tool-cache'
-import { exec } from '@actions/exec'
-import path from 'path'
-import { DETECT_VERSION } from './inputs'
+import { find, downloadTool, cacheFile } from "@actions/tool-cache";
+import { exec } from "@actions/exec";
+import path from "path";
+import { TOOL_VERSION } from "./inputs";
+import { error, info } from "@actions/core";
 
-const IS_WINDOWS = process.platform === 'win32'
-const IS_LINUX = process.platform === 'linux'
-const IS_MACOS = process.platform === 'darwin'
+const IS_WINDOWS = process.platform === "win32";
+const IS_LINUX = process.platform === "linux";
+const IS_MACOS = process.platform === "darwin";
 
-const SCRIPT_LATEST_TAG = 'v0.1.0-TEST'
-const SCRIPT_BINARY_REPO_URL = `https://github.com/synopsys-sig-community/blackduck-direct-scan-action/releases/tag/${SCRIPT_LATEST_TAG}#:~:text=` // bd_direct_scan%2Dmacos
-const DETECT_BINARY_REPO_URL = 'https://sig-repo.synopsys.com'
-export const TOOL_NAME = 'detect'
+const TOOL_BINARY_REPO_URL = `https://github.com/synopsys-sig-community/blackduck-direct-scan-action/releases/tag`; // bd_direct_scan%2Dmacos
+export const TOOL_NAME = "bd_direct_scan";
 
-export async function findOrDownloadScript(): Promise<string> {
-    const jarName = `synopsys-detect-${DETECT_VERSION}.jar`
+export async function findOrDownloadTool(): Promise<string> {
+  let bin_name = TOOL_NAME;
 
-    const cachedDetect = find(TOOL_NAME, DETECT_VERSION)
-    if (cachedDetect) {
-        return path.resolve(cachedDetect, jarName)
-    }
+  if (IS_WINDOWS) {
+    bin_name += ".exe";
+  }
 
-    const detectDownloadUrl = createDetectDownloadUrl()
+  info(`bin_name = ${bin_name}`);
 
-    return (
-        downloadTool(detectDownloadUrl)
-            .then(detectDownloadPath => cacheFile(detectDownloadPath, jarName, TOOL_NAME, DETECT_VERSION))
-            //TODO: Jarsigner?
-            .then(cachedFolder => path.resolve(cachedFolder, jarName))
-    )
+  const cached_tool = find(bin_name, TOOL_VERSION);
+  if (cached_tool) {
+    return path.resolve(cached_tool, bin_name);
+  }
+
+  info(`cached_tool = ${cached_tool}`);
+
+  const download_url = createDetectDownloadUrl();
+
+  info(`download_url = ${download_url}`);
+
+  return (
+    downloadTool(download_url)
+      .then((detectDownloadPath) =>
+        cacheFile(detectDownloadPath, bin_name, TOOL_NAME, TOOL_VERSION)
+      )
+      //TODO: Jarsigner?
+      .then((cachedFolder) => path.resolve(cachedFolder, bin_name))
+  );
 }
 
-export async function runDetect(detectPath: string, detectArguments: string[]): Promise<number> {
-    return exec(`java`, ['-jar', detectPath].concat(detectArguments), { ignoreReturnCode: true })
+export async function run_tool(
+  tool_path: string,
+  args: string[]
+): Promise<number> {
+  info(`run_tool tool_path = ${tool_path} args = ${args}`);
+  return exec(tool_path, args, { ignoreReturnCode: true });
 }
 
-function createDetectDownloadUrl(repoUrl = DETECT_BINARY_REPO_URL): string {
-    return `${repoUrl}/bds-integrations-release/com/synopsys/integration/synopsys-detect/${DETECT_VERSION}/synopsys-detect-${DETECT_VERSION}.jar`
+function createDetectDownloadUrl(repoUrl = TOOL_BINARY_REPO_URL): string {
+  if (IS_WINDOWS) {
+    return `${repoUrl}/${TOOL_VERSION}#:~:text=${TOOL_NAME}%2Dwin32`;
+  } else if (IS_LINUX) {
+    return `${repoUrl}/${TOOL_VERSION}#:~:text=${TOOL_NAME}%2Dlinux`;
+  } else if (IS_MACOS) {
+    return `${repoUrl}/${TOOL_VERSION}#:~:text=${TOOL_NAME}%2Ddarwin`;
+  } else {
+    error(`Platform ${process.platform} not supported by this GitHub Action`);
+    return ``;
+  }
 }
