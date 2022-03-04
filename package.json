@@ -2,7 +2,7 @@
   "name": "blackduck-direct-scan-action",
   "version": "0.1.0",
   "description": "Richly integrate Synopsys Detect and Black Duck policy into your GitHub Action pipelines",
-  "main": "src/main.js",
+  "main": "src/main.ts",
   "type": "module",
   "scripts": {
     "build": "tsc",
