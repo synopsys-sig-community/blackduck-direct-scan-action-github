@@ -12213,7 +12213,7 @@ function run() {
         (0, core_1.info)(`api: ${github_1.context.apiUrl}`);
         process.env.GITHUB_API_URL = github_1.context.apiUrl;
         process.env.GITHUB_TOKEN = inputs_1.GITHUB_TOKEN;
-        process.env.GITHUB_REPOSITORY = github_1.context.repo.repo;
+        process.env.GITHUB_REPOSITORY = `${github_1.context.repo.owner}/${github_1.context.repo.repo}`;
         process.env.GITHUB_REF = github_1.context.ref;
         process.env.GITHUB_SHA = github_1.context.sha;
         const runnerTemp = process.env.RUNNER_TEMP;
