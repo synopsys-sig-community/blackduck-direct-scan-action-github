@@ -1,4 +1,5 @@
 import { info, warning, setFailed, debug } from "@actions/core";
+import { context } from "@actions/github";
 import path from "path";
 import {
   BLACKDUCK_API_TOKEN,
@@ -17,12 +18,24 @@ import {
   DETECT_OPTS,
   PROJECT,
   VERSION,
+  GITHUB_TOKEN,
 } from "./inputs";
 import { TOOL_NAME, findOrDownloadTool, run_tool } from "./tool_manager";
 
 export async function run() {
   info(`tool-version: ${TOOL_VERSION}`);
   info(`scan-mode: ${SCAN_MODE}`);
+
+  info(`sha: ${context.sha}`);
+  info(`repo: ${context.repo.repo}`);
+  info(`ref: ${context.ref}`);
+  info(`api: ${context.apiUrl}`);
+
+  process.env.GITHUB_API_URL = context.apiUrl;
+  process.env.GITHUB_TOKEN = GITHUB_TOKEN;
+  process.env.GITHUB_REPOSITORY = `${context.repo.owner}/${context.repo.repo}`;
+  process.env.GITHUB_REF = context.ref;
+  process.env.GITHUB_SHA = context.sha;
 
   const runnerTemp = process.env.RUNNER_TEMP;
   let outputPath = "";
